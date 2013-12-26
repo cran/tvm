@@ -1,0 +1,16 @@
+\name{adjust_disc}
+\alias{adjust_disc}
+\title{Adjusts the discount factors by a spread}
+\usage{
+adjust_disc(fd, spread)
+}
+\arguments{
+  \item{fd}{vector of discount factors used to discount
+  cashflows in \code{1:length(fd)} periods}
+
+  \item{spread}{effective spread}
+}
+\description{
+Adjusts the discount factors by a spread
+}
+

@@ -1,0 +1,28 @@
+\name{loan}
+\alias{loan}
+\title{Constructor for the loan class}
+\usage{
+loan(rate, maturity, amt, type, grace_int = 0, grace_amort = grace_int)
+}
+\arguments{
+  \item{rate}{The periodic effective rate of the loan}
+
+  \item{maturity}{The maturity of the loan, measured in the
+  same units as the periodicity of the rate}
+
+  \item{amt}{The amount loaned}
+
+  \item{type}{The type of loan. Available types are
+  \code{c("bullet","french","german")}}
+
+  \item{grace_int}{The number of periods that the loan
+  doesn't pay interest and capitalizes it. Leave in 0 for
+  zero loans}
+
+  \item{grace_amort}{The number of periods that the loan
+  doesn't amortize}
+}
+\description{
+Creates a loan
+}
+

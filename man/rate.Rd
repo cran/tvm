@@ -1,0 +1,25 @@
+\name{rate}
+\alias{rate}
+\title{The rate of a loan with constant payments (french type amortization)}
+\usage{
+rate(amt, maturity, pmt, extrema = c(1e-04, 1e+09), tol = 1e-04)
+}
+\arguments{
+  \item{amt}{The amount of the loan}
+
+  \item{maturity}{The maturity of the loan}
+
+  \item{pmt}{The payments of the loan}
+
+  \item{extrema}{Vector of length 2 that has the minimum
+  and maximum value to search for the rate}
+
+  \item{tol}{The tolerance to use in the root finding
+  algorithm}
+}
+\description{
+The periodicity of the maturity and the payment must match,
+and this will be the periodicity of the rate (which is
+returned as an effective rate)
+}
+
