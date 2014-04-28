@@ -5,7 +5,8 @@
 rem(cf, amt, r)
 }
 \arguments{
-  \item{cf}{The cashflow of the loan}
+  \item{cf}{The cashflow of the loan, not including the
+  initial inflow for the loan taker}
 
   \item{amt}{The original amount of the loan}
 
@@ -14,5 +15,8 @@ rem(cf, amt, r)
 \description{
 The amount that has to be repayed at each moment in a loan,
 at the end of the period
+}
+\examples{
+rem(cf = rep_len(0.4, 4), amt = 1, r = 0.2)
 }
 

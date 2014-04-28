@@ -2,14 +2,17 @@
 \alias{disc_cf}
 \title{Value of a discounted cashflow}
 \usage{
-disc_cf(disc, cf)
+disc_cf(fd, cf)
 }
 \arguments{
-  \item{disc}{The discount factor curve}
+  \item{fd}{The discount factor vector}
 
   \item{cf}{The cashflow}
 }
 \description{
 Value of a discounted cashflow
+}
+\examples{
+disc_cf(fd = c(1, 0.99, 0.98, 0.97), cf = c(1, -0.3, -0.4, -0.6))
 }
 

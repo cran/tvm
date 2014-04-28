@@ -26,4 +26,7 @@ returned as an effective rate of periodicty equal to that
 of the maturity and the rate The interest is calculated
 over amt + fee
 }
+\examples{
+cft(amt = 100, maturity = 10, rate = 0.05, up_fee = 1, per_fee = 0.1)
+}
 

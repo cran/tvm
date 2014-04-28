@@ -18,8 +18,15 @@ rate(amt, maturity, pmt, extrema = c(1e-04, 1e+09), tol = 1e-04)
   algorithm}
 }
 \description{
+The rate of a loan with constant payments (french type
+amortization)
+}
+\details{
 The periodicity of the maturity and the payment must match,
 and this will be the periodicity of the rate (which is
 returned as an effective rate)
+}
+\examples{
+rate(amt = 100, maturity = 10, pmt = 15)
 }
 

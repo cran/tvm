@@ -1,6 +1,6 @@
 \name{loan}
 \alias{loan}
-\title{Constructor for the loan class}
+\title{Creates an instance of a loan class}
 \usage{
 loan(rate, maturity, amt, type, grace_int = 0, grace_amort = grace_int)
 }
@@ -23,6 +23,9 @@ loan(rate, maturity, amt, type, grace_int = 0, grace_amort = grace_int)
   doesn't amortize}
 }
 \description{
-Creates a loan
+Creates an instance of a loan class
+}
+\examples{
+loan(rate = 0.05, maturity = 10, amt = 100, type = "bullet")
 }
 

@@ -12,7 +12,14 @@ pmt(amt, maturity, rate)
   \item{rate}{The rate of the loan}
 }
 \description{
+The value of the payment of a loan with constant payments
+(french type amortization)
+}
+\details{
 The periodicity of the maturity and the rate must match,
 and this will be the periodicity of the payments
+}
+\examples{
+pmt(amt = 100, maturity = 10, rate = 0.05)
 }
 

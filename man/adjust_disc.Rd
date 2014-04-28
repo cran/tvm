@@ -13,4 +13,7 @@ adjust_disc(fd, spread)
 \description{
 Adjusts the discount factors by a spread
 }
+\examples{
+adjust_disc(fd = c(0.99, 0.98), spread = 0.01)
+}
 

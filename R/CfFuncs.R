@@ -1,9 +1,9 @@
-#' @useDynLib tvm
-
 #' @title Adjusts the discount factors by a spread
 #' 
 #' @param fd vector of discount factors used to discount cashflows in \code{1:length(fd)} periods
 #' @param spread effective spread
+#' @examples
+#' adjust_disc(fd = c(0.99, 0.98), spread = 0.01)
 #' @export
 adjust_disc <- function(fd,spread) {
   zeros <- (1/fd)^(1/seq(along.with=fd))
@@ -11,11 +11,11 @@ adjust_disc <- function(fd,spread) {
   1/(zeros_adj^(seq(along.with=zeros_adj)))
 }
 
-#' Calculates the Total Financial Cost (CFT)
+#' @title Calculates the Total Financial Cost (CFT)
 #' 
-#' This is the IRR of the loan's cashflow, after adding all the extra costs
+#' @description This is the IRR of the loan's cashflow, after adding all the extra costs
 #' 
-#' It is assumed that the loan has monthly payments
+#' @details It is assumed that the loan has monthly payments
 #' The CFT is returned as an effective rate of periodicty equal to that of the maturity and the rate
 #' The interest is calculated over amt + fee
 #' 
@@ -24,6 +24,8 @@ adjust_disc <- function(fd,spread) {
 #' @param rate The loan rate, in  effective rate
 #' @param up_fee The fee that the loan taker pays upfront
 #' @param per_fee The fee that the loan payer pays every period
+#' @examples
+#' cft(amt = 100, maturity = 10, rate = 0.05, up_fee = 1, per_fee = 0.1)
 #' @export
 cft <- function(amt, maturity, rate, up_fee = 0, per_fee = 0) {
   full_amt <- amt + up_fee
@@ -31,44 +33,53 @@ cft <- function(amt, maturity, rate, up_fee = 0, per_fee = 0) {
   rate(amt = amt, maturity = maturity, pmt = p + per_fee)
 }
 
-#' Net Present Value of a cashflow (NPV)
-#' 
+#' @title Net Present Value of a cashflow (NPV)
+#'  
 #' @param i The rate used to discount the cashflow. It must be effective and with a periodicity that matches that of the cashflow
 #' @param cf The cashflow
-#' @param t The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @examples
+#' npv(i = 0.01, cf = c(-1, 0.5, 0.9), ts = c(0, 1, 3))
 #' @export
-npv <- function(i, cf, t=seq(from=0,by=1,along.with=cf)) sum(cf/(1+i)^t)
+npv <- function(i, cf, ts = seq(from = 0, by = 1, along.with = cf)) sum(cf / (1+i) ^ ts)
 
 #' Internal Rate of Return of a cashflow (IRR)
 #' 
-#' The IRR is returned as an effective rate with periodicity equal to that of the cashflow
+#' @title The IRR is returned as an effective rate with periodicity equal to that of the cashflow
 #' 
 #' @param cf The cashflow
-#' @param t The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @param interval A length 2 vector that indicates the root finding algorithm where to search for the irr
+#' @examples
+#' irr(cf = c(-1, 0.5, 0.9), ts = c(0, 1, 3))
 #' @export
-irr <- function(cf, t=seq(from=0,by=1,along.with=cf)) { uniroot(npv, c(0,100000), cf=cf, t=t)$root }
+irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(0, 100000)) { uniroot(npv, interval = interval, cf = cf, ts = ts)$root }
 
-#' The value of the payment of a loan with constant payments (french type amortization)
+#' @title The value of the payment of a loan with constant payments (french type amortization)
 #' 
-#' The periodicity of the maturity and the rate must match, and this will be the periodicity of the payments
+#' @details The periodicity of the maturity and the rate must match, and this will be the periodicity of the payments
 #'
 #' @param amt The amount of the loan
 #' @param maturity The maturity of the loan
 #' @param rate The rate of the loan
+#' @examples
+#' pmt(amt = 100, maturity = 10, rate = 0.05)
 #' @export
 pmt <- function(amt, maturity, rate) {  
   return(amt*rate/(1-(1+rate)^(-maturity)))
 }
 
-#' The rate of a loan with constant payments (french type amortization)
+#' @title The rate of a loan with constant payments (french type amortization)
 #' 
-#' The periodicity of the maturity and the payment must match, and this will be the periodicity of the rate (which is returned as an effective rate)
+#' @details The periodicity of the maturity and the payment must match, and this will be the periodicity of the rate (which is returned as an effective rate)
 #' 
 #' @param amt The amount of the loan
 #' @param maturity The maturity of the loan
 #' @param pmt The payments of the loan
 #' @param extrema Vector of length 2 that has the minimum and maximum value to search for the rate
 #' @param tol The tolerance to use in the root finding algorithm
+#' @examples
+#' rate(amt = 100, maturity = 10, pmt = 15)
 #' @export
 rate <- function(amt, maturity, pmt, extrema=c(1e-4,1e9), tol=1e-4) {   
   zerome <- function(r) amt/pmt-(1-1/(1+r)^maturity)/r
@@ -79,18 +90,18 @@ rate <- function(amt, maturity, pmt, extrema=c(1e-4,1e9), tol=1e-4) {
 
 rate <- Vectorize(FUN=rate,vectorize.args=c("amt","maturity","pmt"))
 
-#' Constructor for the loan class
-#' 
-#' Creates a loan
-#' 
+#' @title Creates an instance of a loan class
+#'
 #' @param rate The periodic effective rate of the loan
 #' @param maturity The maturity of the loan, measured in the same units as the periodicity of the rate
 #' @param amt The amount loaned
 #' @param type The type of loan. Available types are \code{c("bullet","french","german")}
 #' @param grace_int The number of periods that the loan doesn't pay interest and capitalizes it. Leave in 0 for zero loans
 #' @param grace_amort The number of periods that the loan doesn't amortize
+#' @examples
+#' loan(rate = 0.05, maturity = 10, amt = 100, type = "bullet")
 #' @export
-loan <- function(rate,maturity,amt,type,grace_int = 0, grace_amort = grace_int) {
+loan <- function(rate, maturity, amt, type, grace_int = 0, grace_amort = grace_int) {
   stopifnot(grace_int <= grace_amort)
   stopifnot(grace_amort < maturity)
   l <- structure(list(rate = rate, maturity = maturity, amt = amt, type = type, grace_amort = 0, grace_int = 0), class = c(type,"loan"))
@@ -103,30 +114,35 @@ loan <- function(rate,maturity,amt,type,grace_int = 0, grace_amort = grace_int) 
   l
 }
 
+#' @title Get the cashflow for a loan
+#'
+#' @description Returns the cashflow for the loan, excluding the initial inflow for the loan taker
+#'
+#' @param l The loan
+#' @examples
+#' l <- loan(rate = 0.05, maturity = 10, amt = 100, type = "bullet")
+#' cashflow(l)
+#' @export
 cashflow <- function(l) {
   UseMethod("cashflow")
 }
 
+#' @method cashflow loan
+#' @export
 cashflow.loan <- function(l) {
   stop("Can't get cashflow for a loan without the proper type")
 }
 
-#' Cashflow for a bullet loan
-#' 
-#' A bullet loan pays interest periodically and returns its principal at maturity
-#' 
-#' @param l The loan
+#' @method cashflow bullet
+#' @export
 cashflow.bullet <- function(l) {
   f <- rep_len(l$rate,l$maturity)
   f[l$maturity] <- 1 + f[l$maturity]
   f*l$amt
 }
 
-#' Cashflow for a german loan
-#' 
-#' A german loan has constant amortizations
-#' 
-#' @param l The loan
+#' @method cashflow german
+#' @export
 cashflow.german <- function(l) {  
   k <- rep_len(1/l$maturity,l$maturity)
   krem <- c(1,1-cumsum(k))
@@ -134,33 +150,59 @@ cashflow.german <- function(l) {
   (k+i)*l$amt
 }
 
-#' Cashflow for a french loan
-#' 
-#' A french loan has a constant payment
-#' 
-#' @param l The loan
+#' @method cashflow french
+#' @export
 cashflow.french <- function(l) {  
   rep_len(l$rate / (1 - (1+l$rate)^(-l$maturity)),l$maturity)*l$amt 
 }
 
-#' Value of a discounted cashflow
+#' @title Value of a discounted cashflow
 #' 
-#' @param disc The discount factor curve
+#' @param fd The discount factor vector
 #' @param cf The cashflow
+#' @examples
+#' disc_cf(fd = c(1, 0.99, 0.98, 0.97), cf = c(1, -0.3, -0.4, -0.6))
 #' @export
-disc_cf <- function(disc,cf) {
-  sum(disc*cf)
+disc_cf <- function(fd, cf) {
+  sum(fd*cf)
 }
 
-#' Remaining capital in a loan
+#' @title Remaining capital in a loan
 #' 
-#' The amount that has to be repayed at each moment in a loan, at the end of the period
+#' @description The amount that has to be repayed at each moment in a loan, at the end of the period
 #' 
-#' @param cf The cashflow of the loan
+#' @param cf The cashflow of the loan, not including the initial inflow for the loan taker
 #' @param amt The original amount of the loan
 #' @param r The periodic rate of the loan
+#' @examples
+#' rem(cf = rep_len(0.4, 4), amt = 1, r = 0.2)
 #' @export
 rem <- function(cf,amt,r) {
   s <- function(t) amt*(1+r)^t-sum(cf[1:t]*(1+r)^(t-(1:t)))
   vapply(X=seq_along(cf),FUN=s,FUN.VALUE=1)
+}
+
+#' @title Find the rate for a loan given the discount factors
+#' 
+#' @description Thru a root finding process, this function finds the rate that corresponds to a
+#' given set of discount factors, as for the loan to have the same present value discounted with the
+#' discount factors or with that constant rate
+#' 
+#' @param m The maturity of the loan
+#' @param d The discount factor vector
+#' @param loan_type One of the loan types
+#' @param interval The interval for the root finding process
+#' @param tol The tolerance for the root finding process
+#' @examples
+#' find_rate(m = 3, d = c(0.99, 0.98, 0.97), loan_type = "bullet")
+#' @export
+find_rate <- function(m, d, loan_type, interval = c(1e-6, 2), tol = 1e-8) {
+  if (length(d) < m) {
+    stop("There aren't enough discount factors to discount the entire loan")
+  }
+  zerome <- function(r) {
+    l <- loan(rate = r, maturity = m, amt = 1, type = loan_type)
+    sum(d[seq_len(m)] * l$cf) - sum(l$cf / ((1 + r) ^ (seq_along(l$cf))))
+  }
+  uniroot(f = zerome, interval = interval, tol = tol)$root
 }
