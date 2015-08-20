@@ -6,9 +6,9 @@
 #' adjust_disc(fd = c(0.99, 0.98), spread = 0.01)
 #' @export
 adjust_disc <- function(fd,spread) {
-  zeros <- (1/fd)^(1/seq(along.with=fd))
+  zeros <- (1 / fd) ^ (1 / seq(along.with = fd))
   zeros_adj <- zeros + spread
-  1/(zeros_adj^(seq(along.with=zeros_adj)))
+  1/(zeros_adj ^ (seq(along.with = zeros_adj)))
 }
 
 #' @title Calculates the Total Financial Cost (CFT)
@@ -33,27 +33,54 @@ cft <- function(amt, maturity, rate, up_fee = 0, per_fee = 0) {
   rate(amt = amt, maturity = maturity, pmt = p + per_fee)
 }
 
-#' @title Net Present Value of a cashflow (NPV)
+#' @title Net Present Value of a periodic cashflow (NPV)
 #'  
 #' @param i The rate used to discount the cashflow. It must be effective and with a periodicity that matches that of the cashflow
 #' @param cf The cashflow
-#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}. If empty, assumes that \code{cf[idx]} happens at period \code{idx - 1}
+#' 
+#' @return The net present value at
+#' 
 #' @examples
 #' npv(i = 0.01, cf = c(-1, 0.5, 0.9), ts = c(0, 1, 3))
 #' @export
-npv <- function(i, cf, ts = seq(from = 0, by = 1, along.with = cf)) sum(cf / (1+i) ^ ts)
+npv <- function(i, cf, ts = seq(from = 0, by = 1, along.with = cf)) sum(cf / (1 + i) ^ ts)
 
-#' Internal Rate of Return of a cashflow (IRR)
+#' @title Net Present Value of an irregular cashflow (NPV)
+#'  
+#' @param i The rate used to discount the cashflow. It must be an effective anual rate (EAR)
+#' @param cf The cashflow
+#' @param d The dates when each cashflow occurs. Same length as the cashflow
+#' @examples
+#' xnpv(i = 0.01, cf = c(-1, 0.5, 0.9), d = as.Date(c("2015-01-01", "2015-02-15", "2015-04-10")))
+#' @export
+xnpv <- function(i, cf, d) sum(cf / ((1 + i) ^ (as.integer(d - d[1]) / 365)))
+
+#' Internal Rate of Return of a periodic cashflow (IRR)
 #' 
 #' @title The IRR is returned as an effective rate with periodicity equal to that of the cashflow
 #' 
 #' @param cf The cashflow
-#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{t[idx]}
+#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}
 #' @param interval A length 2 vector that indicates the root finding algorithm where to search for the irr
+#' @param ... Other arguments to be passed on to uniroot
 #' @examples
 #' irr(cf = c(-1, 0.5, 0.9), ts = c(0, 1, 3))
 #' @export
-irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(0, 100000)) { uniroot(npv, interval = interval, cf = cf, ts = ts)$root }
+irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(-1, 10), ...) { uniroot(npv, interval = interval, cf = cf, ts = ts, extendInt = "yes", ...)$root }
+
+#' Internal Rate of Return of an irregular cashflow (IRR)
+#' 
+#' @title The IRR is returned as an effective anual rate
+#' 
+#' @param cf The cashflow
+#' @param d The dates when each cashflow occurs. Same length as the cashflow
+#' @param interval A length 2 vector that indicates the root finding algorithm where to search for the irr
+#' @param ... Other arguments to be passed on to uniroot
+#' @examples
+#' xirr(cf = c(-1, 1.5), d = Sys.Date() + c(0, 365))
+#' @export
+xirr <- function(cf, d, interval = c(-1, 10), ...) { uniroot(xnpv, interval = interval, cf = cf, d = d, extendInt = "yes", ...)$root }
 
 #' @title The value of the payment of a loan with constant payments (french type amortization)
 #' 
@@ -66,7 +93,7 @@ irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(0,
 #' pmt(amt = 100, maturity = 10, rate = 0.05)
 #' @export
 pmt <- function(amt, maturity, rate) {  
-  return(amt*rate/(1-(1+rate)^(-maturity)))
+  return(amt*rate/(1 - (1 + rate) ^ (-maturity)))
 }
 
 #' @title The rate of a loan with constant payments (french type amortization)
@@ -82,13 +109,13 @@ pmt <- function(amt, maturity, rate) {
 #' rate(amt = 100, maturity = 10, pmt = 15)
 #' @export
 rate <- function(amt, maturity, pmt, extrema=c(1e-4,1e9), tol=1e-4) {   
-  zerome <- function(r) amt/pmt-(1-1/(1+r)^maturity)/r
-  if(zerome(extrema[1])>0) return(0)
-  if(zerome(extrema[2])<0) return(extrema[2])
-  return(uniroot(zerome, interval=extrema, tol=tol)$root)
+  zerome <- function(r) amt/pmt - (1 - 1 / (1 + r) ^ maturity) / r
+  if (zerome(extrema[1]) > 0) return(0)
+  if (zerome(extrema[2]) < 0) return(extrema[2])
+  return(uniroot(zerome, interval = extrema, tol = tol)$root)
 }
 
-rate <- Vectorize(FUN=rate,vectorize.args=c("amt","maturity","pmt"))
+rate <- Vectorize(FUN = rate,vectorize.args = c("amt","maturity","pmt"))
 
 #' @title Creates an instance of a loan class
 #'
@@ -106,8 +133,8 @@ loan <- function(rate, maturity, amt, type, grace_int = 0, grace_amort = grace_i
   stopifnot(grace_amort < maturity)
   l <- structure(list(rate = rate, maturity = maturity, amt = amt, type = type, grace_amort = 0, grace_int = 0), class = c(type,"loan"))
   if (grace_amort > 0 || grace_int > 0) {
-    sl <- loan(rate=rate,maturity=maturity-grace_amort,amt=1,type=type)
-    l$cf <- amt*(1+rate)^grace_int*c(rep_len(0,grace_int),rep_len(rate,grace_amort-grace_int),sl$cf)  
+    sl <- loan(rate = rate,maturity = maturity - grace_amort, amt = 1, type = type)
+    l$cf <- amt*(1 + rate) ^ grace_int * c(rep_len(0, grace_int), rep_len(rate, grace_amort - grace_int), sl$cf)  
   } else {
     l$cf <- cashflow(l)  
   }
@@ -145,15 +172,15 @@ cashflow.bullet <- function(l) {
 #' @export
 cashflow.german <- function(l) {  
   k <- rep_len(1/l$maturity,l$maturity)
-  krem <- c(1,1-cumsum(k))
+  krem <- c(1,1 - cumsum(k))
   i <- head(krem,l$maturity)*l$rate
-  (k+i)*l$amt
+  (k + i) * l$amt
 }
 
 #' @method cashflow french
 #' @export
 cashflow.french <- function(l) {  
-  rep_len(l$rate / (1 - (1+l$rate)^(-l$maturity)),l$maturity)*l$amt 
+  rep_len(l$rate / (1 - (1 + l$rate) ^ (-l$maturity)), l$maturity) * l$amt 
 }
 
 #' @title Value of a discounted cashflow
@@ -164,7 +191,7 @@ cashflow.french <- function(l) {
 #' disc_cf(fd = c(1, 0.99, 0.98, 0.97), cf = c(1, -0.3, -0.4, -0.6))
 #' @export
 disc_cf <- function(fd, cf) {
-  sum(fd*cf)
+  sum(fd * cf)
 }
 
 #' @title Remaining capital in a loan
@@ -178,8 +205,8 @@ disc_cf <- function(fd, cf) {
 #' rem(cf = rep_len(0.4, 4), amt = 1, r = 0.2)
 #' @export
 rem <- function(cf,amt,r) {
-  s <- function(t) amt*(1+r)^t-sum(cf[1:t]*(1+r)^(t-(1:t)))
-  vapply(X=seq_along(cf),FUN=s,FUN.VALUE=1)
+  s <- function(t) amt*(1 + r) ^ t - sum(cf[1:t] * (1 + r) ^ (t - (1:t)))
+  vapply(X = seq_along(cf), FUN = s, FUN.VALUE = 1)
 }
 
 #' @title Find the rate for a loan given the discount factors
