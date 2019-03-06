@@ -4,7 +4,7 @@ author: "Juan Manuel Truppia"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Intro}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,9 +17,9 @@ library(tvm)
 
 Well, first, `tvm` stands for "time value of money", the usual name for financial calculations that involve interest rates, present values and future values.
 
-Base R doesn't have built-in calculations for this, and they are on of the most used functions in Excel for financial calculations. `tvm` attemps to provide these calculations to the user, using known Excel names where possible.
+Base R doesn't have built-in calculations for this, and they are on of the most used functions in Excel for financial calculations. `tvm` attempts to provide these calculations to the user, using known Excel names where possible.
 
-## Simple present values and rate calcualations
+## Simple present values and rate calculations
 
 For the Excel user, the following functions will be known
 

@@ -16,7 +16,7 @@ adjust_disc <- function(fd,spread) {
 #' @description This is the IRR of the loan's cashflow, after adding all the extra costs
 #' 
 #' @details It is assumed that the loan has monthly payments
-#' The CFT is returned as an effective rate of periodicty equal to that of the maturity and the rate
+#' The CFT is returned as an effective rate of periodicity equal to that of the maturity and the rate
 #' The interest is calculated over amt + fee
 #' 
 #' @param amt The amount of the loan
@@ -37,7 +37,7 @@ cft <- function(amt, maturity, rate, up_fee = 0, per_fee = 0) {
 #'  
 #' @param i The rate used to discount the cashflow. It must be effective and with a periodicity that matches that of the cashflow
 #' @param cf The cashflow
-#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}. If empty, assumes that \code{cf[idx]} happens at period \code{idx - 1}
+#' @param ts The times on which the cashflow occurs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}. If empty, assumes that \code{cf[idx]} happens at period \code{idx - 1}
 #' 
 #' @return The net present value at
 #' 
@@ -48,20 +48,32 @@ npv <- function(i, cf, ts = seq(from = 0, by = 1, along.with = cf)) sum(cf / (1 
 
 #' @title Net Present Value of an irregular cashflow (NPV)
 #'  
-#' @param i The rate used to discount the cashflow. It must be an effective anual rate (EAR)
+#' @param i The rate used to discount the cashflow
 #' @param cf The cashflow
-#' @param d The dates when each cashflow occurs. Same length as the cashflow
+#' @param d The dates when each cashflow occurs. Same length as the cashflow. Only used if tau is NULL. Assumes act/365 fractions
+#' @param tau The year fractions when each cashflow occurs. Same length as the cashflow
+#' @param comp_freq The compounding frequency used. Most relevant cases are 1 for yearly, 2 twice a year, 4 quarterly, 12 monthly, 0 no compounding, Inf continuous
 #' @examples
 #' xnpv(i = 0.01, cf = c(-1, 0.5, 0.9), d = as.Date(c("2015-01-01", "2015-02-15", "2015-04-10")))
 #' @export
-xnpv <- function(i, cf, d) sum(cf / ((1 + i) ^ (as.integer(d - d[1]) / 365)))
+xnpv <- function(i, cf, d, tau = NULL, comp_freq = 1) {
+  if (is.null(tau)) tau <- as.integer(d - d[1]) / 365
+  delta <- if (comp_freq == 0) {
+    1 / (1 + i * tau)
+  } else if (comp_freq == Inf) {
+    exp(-tau * i)
+  } else {
+    1 / ((1 + i / comp_freq) ^ (tau * comp_freq))
+  } 
+  sum(cf * delta)
+}
 
 #' Internal Rate of Return of a periodic cashflow (IRR)
 #' 
 #' @title The IRR is returned as an effective rate with periodicity equal to that of the cashflow
 #' 
 #' @param cf The cashflow
-#' @param ts The times on which the cashflow ocurrs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}
+#' @param ts The times on which the cashflow occurs. It is assumed that \code{cf[idx]} happens at moment \code{ts[idx]}
 #' @param interval A length 2 vector that indicates the root finding algorithm where to search for the irr
 #' @param ... Other arguments to be passed on to uniroot
 #' @examples
@@ -71,16 +83,18 @@ irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(-1
 
 #' Internal Rate of Return of an irregular cashflow (IRR)
 #' 
-#' @title The IRR is returned as an effective anual rate
+#' @title The IRR is returned as an effective annual rate
 #' 
 #' @param cf The cashflow
-#' @param d The dates when each cashflow occurs. Same length as the cashflow
+#' @param d The dates when each cashflow occurs. Same length as the cashflow. Only used if tau is NULL. Assumes act/365 fractions
+#' @param tau The year fractions when each cashflow occurs. Same length as the cashflow
+#' @param comp_freq The compounding frequency used. Most relevant cases are 1 for yearly, 2 twice a year, 4 quarterly, 12 monthly, 0 no compounding, Inf continuous
 #' @param interval A length 2 vector that indicates the root finding algorithm where to search for the irr
 #' @param ... Other arguments to be passed on to uniroot
 #' @examples
 #' xirr(cf = c(-1, 1.5), d = Sys.Date() + c(0, 365))
 #' @export
-xirr <- function(cf, d, interval = c(-1, 10), ...) { uniroot(xnpv, interval = interval, cf = cf, d = d, extendInt = "yes", ...)$root }
+xirr <- function(cf, d, tau = NULL, comp_freq = 1, interval = c(-1, 10), ...) { uniroot(xnpv, interval = interval, cf = cf, d = d, tau = tau, comp_freq = comp_freq, extendInt = "yes", ...)$root }
 
 #' @title The value of the payment of a loan with constant payments (french type amortization)
 #' 

@@ -1,3 +1,7 @@
+# tvm 0.4
+
+* Add year fraction and compounding arguments to both `xnpv` and `xirr`, providing greater flexibility
+
 # tvm 0.3
 
 * Add vignette and NEWS
