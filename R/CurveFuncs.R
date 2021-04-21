@@ -57,6 +57,14 @@ disc_to_french <- function(disc, search_interval = c(0.0001,1), tol = 1e-8) {
     1)
 }
 
+disc_to_zero_cont <- function(disc) {
+  - log(disc) / seq_along(disc)
+}
+
+zero_cont_to_disc <- function(zero) {
+  exp(- zero * seq_along(zero))
+}
+
 eff_to_dir <- function(r) {
   (1 + r) ^ seq_along(r) - 1
 }
@@ -74,7 +82,7 @@ unscale_eff <- function(x, rate_scale) (1 + x) ^ (1 / rate_scale) - 1
 rescale_eff <- function(x, rate_scale) (1 + x) ^ (rate_scale) - 1
 
 unscale <- function(x, rate_scale, rate_type) {
-  if (rate_type %in% c("zero_nom", "german", "french", "swap", "fut")) {
+  if (rate_type %in% c("zero_nom", "german", "french", "swap", "fut", "zero_cont")) {
     unscale_nom(x, rate_scale)
   } else {
     unscale_eff(x, rate_scale)
@@ -82,7 +90,7 @@ unscale <- function(x, rate_scale, rate_type) {
 }
 
 rescale <- function(x, rate_scale, rate_type) {
-  if (rate_type %in% c("zero_nom", "german", "french", "swap", "fut")) {
+  if (rate_type %in% c("zero_nom", "german", "french", "swap", "fut", "zero_cont")) {
     rescale_nom(x, rate_scale)
   } else {
     rescale_eff(x, rate_scale)
@@ -92,7 +100,7 @@ rescale <- function(x, rate_scale, rate_type) {
 #' @title Creates a rate curve instance
 #' 
 #' @param rates A rate vector
-#' @param rate_type The rate type. Must be on of c("fut", "zero_nom", "zero_eff", "swap")
+#' @param rate_type The rate type. Must be on of c("fut", "zero_nom", "zero_eff", "swap", "zero_cont)
 #' @param pers The periods the rates correspond to
 #' @param rate_scale In how many periods is the rate expressed.
 #' For example, when measuring periods in days, and using annual rates, you should use 365. 
@@ -106,7 +114,7 @@ rescale <- function(x, rate_scale, rate_type) {
 #' @note Currently a rate curve can only be built from one of the following sources
 #' \enumerate{
 #' \item A discount factor function
-#' \item A rate function and a rate type from the following types: "fut", "zero_nom", "zero_eff" or "swap"
+#' \item A rate function and a rate type from the following types: "fut", "zero_nom", "zero_eff", "swap" or "zero_cont
 #' \item A rate vector, a pers vector and a rate type as before
 #' }
 #' @examples
@@ -150,7 +158,7 @@ rate_curve <- function(
 }
 
 get_rate_fun <- function(r, rate_type = "zero_eff") {
-  stopifnot(rate_type %in% c("french","fut","german","zero_eff","zero_nom","swap"))
+  stopifnot(rate_type %in% c("french", "fut", "german", "zero_eff", "zero_nom", "swap", "zero_cont"))
   d <- (r$f)(r$knots)
   y <- do.call(what = paste0("disc_to_",rate_type), args = list(d))
   f <- r$functor(x = r$knots, y = y)
@@ -181,7 +189,9 @@ get_rate_fun <- function(r, rate_type = "zero_eff") {
 #' @title Plots a rate curve
 #' 
 #' @param x The rate curve
-#' @param rate_type The rate types to plot, in c("french","fut","german","zero_eff","zero_nom","swap")
+#' @param rate_type The rate types to plot, in c("french", "fut", "german", "zero_eff", "zero_nom", "swap", "zero_cont")
+#' @param y_labs_perc If TRUE, the y axe is labeled with percentages 
+#' @param y_labs_acc If y_labs_perc is TRUE, the accuracy for the percentages (i.e., 1 for xx\%, 0.1 for xx.x\%, 0.01 for xx.xx\%, etc) 
 #' @param ... Other arguments (unused)
 #' @examples
 #' r <- rate_curve(rates = c(0.1, 0.2, 0.3), rate_type = "zero_eff")
@@ -191,8 +201,8 @@ get_rate_fun <- function(r, rate_type = "zero_eff") {
 #' plot(r, rate_type = c("french", "german"))
 #' }
 #' @export
-plot.rate_curve <- function(x, rate_type = NULL, ...) {
-  all_rate_types = c("french","fut","german","zero_eff","zero_nom","swap")
+plot.rate_curve <- function(x, rate_type = NULL, y_labs_perc = TRUE, y_labs_acc = NULL, ...) {
+  all_rate_types = c("french", "fut", "german", "zero_eff", "zero_nom", "swap", "zero_cont")
   if (is.null(rate_type)) {
     rate_type = all_rate_types
   }
@@ -206,8 +216,10 @@ plot.rate_curve <- function(x, rate_type = NULL, ...) {
   names(df) <- rate_type
   df$Time = x$knots    
   dfm <- reshape2::melt(data = df, id.vars = "Time", variable.name = "RateType", value.name = "Rate")
-  ggplot2::ggplot(data = dfm) +
+  x <- ggplot2::ggplot(data = dfm) +
     ggplot2::geom_line(mapping = ggplot2::aes_string(x = "Time", y = "Rate", color = "RateType"))
+  if (y_labs_perc) x <- x + ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = y_labs_acc))
+  x
 }
 
 #' @title Calculates the present value of a cashflow

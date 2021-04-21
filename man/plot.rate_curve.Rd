@@ -4,12 +4,16 @@
 \alias{plot.rate_curve}
 \title{Plots a rate curve}
 \usage{
-\method{plot}{rate_curve}(x, rate_type = NULL, ...)
+\method{plot}{rate_curve}(x, rate_type = NULL, y_labs_perc = TRUE, y_labs_acc = NULL, ...)
 }
 \arguments{
 \item{x}{The rate curve}
 
-\item{rate_type}{The rate types to plot, in c("french","fut","german","zero_eff","zero_nom","swap")}
+\item{rate_type}{The rate types to plot, in c("french", "fut", "german", "zero_eff", "zero_nom", "swap", "zero_cont")}
+
+\item{y_labs_perc}{If TRUE, the y axe is labeled with percentages}
+
+\item{y_labs_acc}{If y_labs_perc is TRUE, the accuracy for the percentages (i.e., 1 for xx\%, 0.1 for xx.x\%, 0.01 for xx.xx\%, etc)}
 
 \item{...}{Other arguments (unused)}
 }

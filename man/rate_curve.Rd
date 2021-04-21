@@ -4,15 +4,21 @@
 \alias{rate_curve}
 \title{Creates a rate curve instance}
 \usage{
-rate_curve(rates = NULL, rate_type = "zero_eff",
-  pers = 1:length(rates), rate_scale = 1, fun_d = NULL,
-  fun_r = NULL, knots = seq.int(from = 1, to = max(pers), by = 1),
-  functor = function(x, y) splinefun(x = x, y = y, method = "monoH.FC"))
+rate_curve(
+  rates = NULL,
+  rate_type = "zero_eff",
+  pers = 1:length(rates),
+  rate_scale = 1,
+  fun_d = NULL,
+  fun_r = NULL,
+  knots = seq.int(from = 1, to = max(pers), by = 1),
+  functor = function(x, y) splinefun(x = x, y = y, method = "monoH.FC")
+)
 }
 \arguments{
 \item{rates}{A rate vector}
 
-\item{rate_type}{The rate type. Must be on of c("fut", "zero_nom", "zero_eff", "swap")}
+\item{rate_type}{The rate type. Must be on of c("fut", "zero_nom", "zero_eff", "swap", "zero_cont)}
 
 \item{pers}{The periods the rates correspond to}
 
@@ -36,7 +42,7 @@ Creates a rate curve instance
 Currently a rate curve can only be built from one of the following sources
 \enumerate{
 \item A discount factor function
-\item A rate function and a rate type from the following types: "fut", "zero_nom", "zero_eff" or "swap"
+\item A rate function and a rate type from the following types: "fut", "zero_nom", "zero_eff", "swap" or "zero_cont
 \item A rate vector, a pers vector and a rate type as before
 }
 }

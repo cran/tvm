@@ -3,7 +3,6 @@
 \docType{package}
 \name{tvm}
 \alias{tvm}
-\alias{tvm-package}
 \title{tvm}
 \description{
 Functions for managing cashflows and interest rate curves.

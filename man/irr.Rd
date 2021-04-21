@@ -4,8 +4,7 @@
 \alias{irr}
 \title{The IRR is returned as an effective rate with periodicity equal to that of the cashflow}
 \usage{
-irr(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(-1,
-  10), ...)
+irr(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(-1, 10), ...)
 }
 \arguments{
 \item{cf}{The cashflow}
