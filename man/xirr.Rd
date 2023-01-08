@@ -4,7 +4,7 @@
 \alias{xirr}
 \title{The IRR is returned as an effective annual rate}
 \usage{
-xirr(cf, d, tau = NULL, comp_freq = 1, interval = c(-1, 10), ...)
+xirr(cf, d, tau = NULL, comp_freq = 1, interval = c(-0.99999, 10), ...)
 }
 \arguments{
 \item{cf}{The cashflow}

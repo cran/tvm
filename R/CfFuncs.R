@@ -94,7 +94,7 @@ irr <- function(cf, ts = seq(from = 0, by = 1, along.with = cf), interval = c(-1
 #' @examples
 #' xirr(cf = c(-1, 1.5), d = Sys.Date() + c(0, 365))
 #' @export
-xirr <- function(cf, d, tau = NULL, comp_freq = 1, interval = c(-1, 10), ...) { uniroot(xnpv, interval = interval, cf = cf, d = d, tau = tau, comp_freq = comp_freq, extendInt = "yes", ...)$root }
+xirr <- function(cf, d, tau = NULL, comp_freq = 1, interval = c(-0.99999, 10), ...) { uniroot(xnpv, interval = interval, cf = cf, d = d, tau = tau, comp_freq = comp_freq, extendInt = "yes", ...)$root }
 
 #' @title The value of the payment of a loan with constant payments (french type amortization)
 #' 
