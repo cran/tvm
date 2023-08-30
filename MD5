@@ -1,15 +1,15 @@
-f4d1f236a8b28a5f3a1e7f52bd430a92 *DESCRIPTION
+428e46ec1bebe1497504a89780c85ae8 *DESCRIPTION
 793d482862070b9734c8a309c8a27cd1 *LICENSE
 2bd82f0a30c92283c21b8658090c941b *NAMESPACE
 61d068594afb23cadfc96d1a0123d2b3 *NEWS.md
 8e961735d82eeaeb62040fa515e51928 *R/CfFuncs.R
 6452d7a8b296c9ab9b9d1d0354ee6727 *R/CurveFuncs.R
-88af6182de230d5afe943006a956f0c0 *R/tvm-package.R
+4bcd081cdd6598d923159cb5ee387623 *R/tvm-package.R
 5dfe4359ec9ddee6f75dcee9cf115bc8 *README.md
 27812a28e408d3904369b368d3991138 *build/vignette.rds
 4c9356e50650c87d0636b5f73d8c262f *inst/doc/intro.R
 eff0e2adc6b4e149fa43ee5cb913a225 *inst/doc/intro.Rmd
-2eecee98dfd9571070d769b766e5aa55 *inst/doc/intro.html
+24600e109be8ddcbf44e4824da7cf7e9 *inst/doc/intro.html
 d112e346213bff1a0055ab1539f9479c *man/adjust_disc.Rd
 fd107f013608177267eb39f06bd834d6 *man/cashflow.Rd
 4b391d3603e4bd0bf71bb9dbdc30b1ed *man/cft.Rd
@@ -25,7 +25,7 @@ eb3e6f4a316cf2b03b5662cc9884bb9a *man/rate.Rd
 ee611e83abd52044f283094d4564ba88 *man/rate_curve.Rd
 3f58b09301eb564b14a326d61ff207ef *man/rem.Rd
 68e028125bbe5fc77163b7081dd39d02 *man/sub-.rate_curve.Rd
-68f530b8160444372978d8aa97759ac4 *man/tvm.Rd
+0b9d24b55282a818fca320de57fdab5d *man/tvm-package.Rd
 24ca277966f29f5a9b46db4a47c392e3 *man/xirr.Rd
 dc4c56e6643404cdd82eb28bb3a233c6 *man/xnpv.Rd
 d2bc1936046461a8f5ceb7b788201e8b *tests/test-all.R

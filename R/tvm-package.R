@@ -1,9 +1,9 @@
-#' tvm
-#' 
-#' Functions for managing cashflows and interest rate curves.
-#' 
-#' @docType package
-#' @name tvm
-#' @importFrom stats splinefun uniroot
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom stats splinefun
+#' @importFrom stats uniroot
 #' @importFrom utils head
+## usethis namespace: end
 NULL
